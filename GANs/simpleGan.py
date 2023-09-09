@@ -5,6 +5,9 @@ from torchvision import datasets , transforms
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+
+# DEFINING THE ADVERSARIAL NEURAL NETWORKS
+# Discriminator: It distinguishes the fake data from the real data. It wants to maximise the loss function eqn(Supervised Learning)
 class Discriminator(nn.Module):
     def __init__(self , img_dim):
         super().__init__()
@@ -19,6 +22,8 @@ class Discriminator(nn.Module):
     def forward(self , X):
         return self.disc(X)
 
+# Generator: It creates fake data to fool the discrtiminator into thinking its real data. It;s initialised from random noise which is tuned
+# It wants to minimise the loss function eqn (Unsupervised Learning)
 class Generator(nn.Module):
     def __init__(self , z_dim , img_dim):
         super().__init__()
@@ -33,10 +38,14 @@ class Generator(nn.Module):
 
     def forward(self , X):
         return self.gen(X)
-    
+
+
+# DEVICE AGNOSTIC CODE
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# HYPERPARAMETERS
 lr = 3e-4
-z_dim = 64
+z_dim = 64 #Inintial noise passed to generator
 image_dim = 28*28*1
 batch_size = 32
 epochs = 50
@@ -49,6 +58,8 @@ transforms = transforms.Compose(
     transforms.Normalize((0.5,) , (0.5,))]
 )
 
+
+# Getting MNIST dataset and making DataLoader
 dataset = datasets.MNIST(root = "dataset/" , transform=transforms , download = True)
 loader = DataLoader(dataset , batch_size=batch_size , shuffle = True)
 opt_disc = optim.Adam(params = disc.parameters() , lr = lr)
@@ -66,23 +77,34 @@ for epoch in range(epochs):
 
         #Train Discriminator
         noise = torch.randn(batch_size , z_dim).to(device)
-        fake = gen(noise)
-        disc_real = disc(real_img).view(-1)
-        lossDisc_real = loss_fn(disc_real , torch.ones_like(disc_real))
-        disc_fake = disc(fake.detach()).view(-1)
-        lossDisc_fake = loss_fn(disc_fake , torch.zeros_like(disc_fake))
-        lossDisc = (lossDisc_real + lossDisc_fake) / 2
+
+        fake = gen(noise) #generating an img from generator NN
+        disc_real = disc(real_img).view(-1) #training discrimantor to identify real img
+        disc_fake = disc(fake.detach()).view(-1) #training disc to identify fake img
+
+        # Calculating Loss(Discriminator)
+        lossDisc_real = loss_fn(disc_real , torch.ones_like(disc_real)) #loss of training disc to find real img
+        lossDisc_fake = loss_fn(disc_fake , torch.zeros_like(disc_fake)) #loss of training disc to find fake img
+        lossDisc = (lossDisc_real + lossDisc_fake) / 2 #avg loss of discriminator
+
         disc.zero_grad()
+
         lossDisc.backward()
+
         opt_disc.step()
 
         #Train Generator
-        output = disc(fake).view(-1)
-        lossGen = loss_fn(output , torch.ones_like(output))
+        output = disc(fake).view(-1) #result of discriminator classifying fake img
+
+        lossGen = loss_fn(output , torch.ones_like(output))#loss of training gen to create fake img
+
         gen.zero_grad()
+
         lossGen.backward()
+
         opt_gen.step()
 
+        #Print Useful info like current epoch , Loss of gen and disc , tensorboard visualisation
         if batch_idx == 0:
             print(f"Epoch: {epoch}/{epochs} | Loss Disc: {lossDisc:.3f} | Loss Gen: {lossGen:.3f}")
 
