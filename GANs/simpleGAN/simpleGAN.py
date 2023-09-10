@@ -60,14 +60,14 @@ transforms = transforms.Compose(
 
 
 # Getting MNIST dataset and making DataLoader
-dataset = datasets.MNIST(root = "dataset/" , transform=transforms , download = True)
+dataset = datasets.MNIST(root = "GANs/simpleGAN/dataset/" , transform=transforms , download = True)
 loader = DataLoader(dataset , batch_size=batch_size , shuffle = True)
 opt_disc = optim.Adam(params = disc.parameters() , lr = lr)
 opt_gen = optim.Adam(params = gen.parameters() , lr = lr)
 
 loss_fn = nn.BCELoss()
-writer_fake = SummaryWriter(f"runs/GAN_MNIST/fake")
-writer_real = SummaryWriter(f"runs/GAN_MNIST/real")
+writer_fake = SummaryWriter(f"GANs/simpleGAN/runs/GAN_MNIST/fake")
+writer_real = SummaryWriter(f"GANs/simpleGAN/runs/GAN_MNIST/real")
 step = 0
 
 for epoch in range(epochs):
