@@ -25,7 +25,7 @@ class Discriminator(nn.Module):
 
             self.block(features_d*4 , features_d*8, 4 , 2 , 1),#4 x 4
 
-            nn.Conv2d(features_d*8 , 1 , 4 , 2 , 0),#1 x 1
+            nn.Conv2d(features_d*8 , 1 , kernel_size = 4 , stride = 2 , padding = 0),#1 x 1
             nn.Sigmoid()
         )
 
@@ -68,17 +68,17 @@ class Generator(nn.Module):
 
         )
 
-    def block(self , in_channels , out_channles , kernsel_size , stride , padding):
+    def block(self , in_channels , out_channels , kernsel_size , stride , padding):
         return nn.Sequential(
             nn.ConvTranspose2d(
                 in_channels=in_channels,
-                out_channels=out_channles,
+                out_channels=out_channels,
                 kernel_size=kernsel_size,
                 stride=stride,
                 padding=padding,
                 bias = False
             ),
-            nn.BatchNorm2d(out_channles),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU()
         )
     
@@ -89,7 +89,7 @@ class Generator(nn.Module):
 def initialise_wt(model):
     for m in model.modules():
         if isinstance(m , (nn.Conv2d , nn.ConvTranspose2d , nn.BatchNorm2d)):
-            nn.init.normal_(m.weight.data , 0.0,0.02)
+            nn.init.normal_(m.weight.data , 0.0 , 0.02)
 
 def test():
     N , in_channels , H , W = 8,3,64,64

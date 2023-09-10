@@ -45,7 +45,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # HYPERPARAMETERS
 lr = 3e-4
-z_dim = 64 #Inintial noise passed to generator
+z_dim = 64 #Inintial noise dimension passed to generator
 image_dim = 28*28*1
 batch_size = 32
 epochs = 50
@@ -105,7 +105,7 @@ for epoch in range(epochs):
         opt_gen.step()
 
         #Print Useful info like current epoch , Loss of gen and disc , tensorboard visualisation
-        if batch_idx == 0:
+        if batch_idx % 100 == 0:
             print(f"Epoch: {epoch}/{epochs} | Loss Disc: {lossDisc:.3f} | Loss Gen: {lossGen:.3f}")
 
             with torch.inference_mode():
