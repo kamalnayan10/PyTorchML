@@ -67,10 +67,11 @@ for epoch in range(EPOCHS):
     for batch_idx , (img_real , labels) in enumerate(loader):
         img_real = img_real.to(device)
         labels = labels.to(device)
+        cur_batch_size = img_real.shape[0]
 
         # TRAIN DISCRIMINATOR
         for _ in range(CRITIC_ITER):
-            noise = torch.randn((BATCH_SIZE , Z_DIM , 1 ,1)).to(device)
+            noise = torch.randn(cur_batch_size , Z_DIM , 1 ,1).to(device)
 
             fake_img = gen(noise ,labels)
 
